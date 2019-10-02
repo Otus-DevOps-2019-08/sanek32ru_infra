@@ -57,3 +57,73 @@ Alexander Peven OTUS-DevOps-2019-08 Infra repository
   * Создан сервер
   * Добавлен маршрут ко внутренней сети
   * Сервер прикреплён к организации
+
+## HomeWork 4: Основные сервисы GCP
+testapp_IP = 35.235.38.237
+testapp_port = 9292
+
+* Создаём новую ветку в репозитории
+$ git checkout -b cloud-testapp
+
+* Переносим файлы прошлого ДЗ в отдельную папку VPN
+$ git mv setupvpn.sh VPN/setupvpn.sh
+Аналогично для второго файла
+
+* Устанавливаем google SDK по инструкции https://cloud.google.com/sdk/docs/
+
+* Создаём новый инстанс
+```
+gcloud compute instances create reddit-app\
+  --boot-disk-size=10GB \
+  --image-family ubuntu-1604-lts \
+  --image-project=ubuntu-os-cloud \
+  --machine-type=g1-small \
+  --tags puma-server \
+  --restart-on-failure
+```
+* Подключаемся к серверу и устанавливаем Ruby
+```
+$ ssh vlad@reddit-app
+$ sudo apt update
+$ sudo apt install -y ruby-full ruby-bundler build-essential
+```
+
+* Устанавливаем MongoDB, запускаем и добавляем в автозапуск.
+```
+$ wget -qO - https://www.mongodb.org/static/pgp/server-3.2.asc | sudo apt-key add -
+$ echo "deb http://repo.mongodb.org/apt/ubuntu xenial/mongodb-org/3.2 multiverse" | sudo tee /etc/apt/sources.list.d/mongodb-org-3.2.list
+$ sudo apt update
+$ sudo apt install -y mongodb-org
+$ sudo systemctl start mongod
+$ sudo systemctl enable mongod
+```
+
+* Деплоим приложение.
+```
+$ git clone -b monolith https://github.com/express42/reddit.git
+$ cd reddit && bundle install
+$ puma -d
+```
+
+## Дополнительное задание №1
+```
+gcloud compute instances create reddit-app-test\
+  --boot-disk-size=10GB \
+  --image-family ubuntu-1604-lts \
+  --image-project=ubuntu-os-cloud \
+  --machine-type=g1-small \
+  --tags puma-server \
+  --restart-on-failure \
+  --metadata-from-file startup-script=/home/vlad/devops_courses/finrerty_infra/startup_script.sh
+```
+
+*Если хотим загрузить из url, то помещаем файл в bucket и используем строку 
+```
+--metadata startup-script-url=gs://bucket/startup_script.sh
+```
+
+## Дополнительное задание №2
+Создание правила фаерволла:
+```
+gcloud compute firewall-rules create puma-rule --allow tcp:9292 --target-tags=puma-server
+```
