@@ -21,7 +21,7 @@
             "disk_size": "{{user `disk_size`}}",
             "disk_type": "{{user `disk_type`}}",
             "tags": "{{user `tags`}}",
-            "network": "{{user `network`}}",
+            "network": "{{user `network`}}"
         }
     ],
     "provisioners": [
