@@ -1,0 +1,8 @@
+{
+  "project_id": "project_id",
+  "source_image_family": "source_image_family",
+  "image_description": "image_description",
+  "image_family": "image-family",
+  "ssh_username": "ssh_username",
+  "tags": "tags"
+}
