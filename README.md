@@ -127,3 +127,22 @@ gcloud compute instances create reddit-app-test\
 ```
 gcloud compute firewall-rules create puma-rule --allow tcp:9292 --target-tags=puma-server
 ```
+
+## HomeWork 5: Packer
+Домашнее задание: Сборка образа при помощи Packer
+
+* Создан образ VM  `reddit-base`(без параметров)
+./packer
+```
+packer build ubuntu16.json
+```
+* Создан образ VM `reddit-base` (с параметрами)
+
+./packer 
+```
+packer build -var-file=variables.json.example  ubuntu16.json
+```
+
+* Запускаем инстанс из созданного образа и на нем сразу
+же имеем запущенное приложение
+
