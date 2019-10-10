@@ -16,6 +16,4 @@ variable disk_image {
 variable private_key {
   description = "Private key"
 }
-variable region {
-  description = "region"
-}
+
