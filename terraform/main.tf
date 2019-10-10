@@ -33,6 +33,11 @@ resource "google_compute_instance" "app" {
     # путь до публичного ключа
     ssh-keys = "appuser:${file("~/.ssh/appuser.pub")}"
   }
+
+  provisioner "file" {
+    source = "files/puma.service"
+    destination = "/tmp/puma.service"
+  }
 }
 
 resource "google_compute_firewall" "firewall_puma" {
