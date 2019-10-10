@@ -13,3 +13,9 @@ variable public_key_path {
 variable disk_image {
   description = "Disk image"
 }
+variable private_key {
+  description = "Private key"
+}
+variable region {
+  description = "region"
+}
