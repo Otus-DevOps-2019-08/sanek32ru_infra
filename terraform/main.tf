@@ -19,7 +19,7 @@ resource "google_compute_instance" "app" {
   zone = "europe-west1-b"
   boot_disk {
     initialize_params {
-      image = " reddit-base"
+      image = "reddit-base"
     }
   }
   
