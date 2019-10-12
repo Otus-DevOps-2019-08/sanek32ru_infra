@@ -146,3 +146,11 @@ packer build -var-file=variables.json.example  ubuntu16.json
 * Запускаем инстанс из созданного образа и на нем сразу
 же имеем запущенное приложение
 
+## HomeWork 6: terraform-1
+
+- Описана инфраструктура в `main.tf`
+- Описаны переменные в `variables.tf`
+- Переменным задано значение через `terraform.tfvars`
+- Заданны переменные для "google_compute_instance" "app" "Zone"
+- Все файлы отформатированы командой `terraform fmt`
+- Создан `terraform.tfvars.example`
