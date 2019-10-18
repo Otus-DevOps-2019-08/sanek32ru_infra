@@ -1,6 +1,6 @@
 terraform {
   # Версия terraform
-  required_version = "0.12.10"
+  required_version = "~> 0.12.8"
 }
 
 provider "google" {
@@ -21,4 +21,9 @@ module "db" {
   public_key_path = var.public_key_path
   # zone            = var.region
   db_disk_image   = var.db_disk_image
+}
+
+module "vpc" {
+  source        = "../modules/vpc"
+  source_ranges = ["0.0.0.0/0"]
 }
