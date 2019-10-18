@@ -1,7 +1,6 @@
-variable region {
-  description = "Region"
-  # Значение по умолчанию
-  default = "europe-west1"
+variable zone {
+  description = "zone of VM dislocaton"
+  default     = "europe-west-b"
 }
 variable public_key_path {
   # Описание переменной
