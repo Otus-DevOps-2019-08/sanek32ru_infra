@@ -1,7 +1,7 @@
 resource "google_compute_instance" "app" {
   name = "reddit-app"
   machine_type = "g1-small"
-  zone = var.region
+  zone = var.zone
   tags = ["reddit-app"]
   boot_disk {
     initialize_params { image = var.app_disk_image }
@@ -19,7 +19,7 @@ resource "google_compute_instance" "app" {
 
 resource "google_compute_address" "app_ip" { 
   name = "reddit-app-ip"
-  region = "europe-west1"
+  # region = "europe-west1"
 }
 
 resource "google_compute_firewall" "firewall_puma" {

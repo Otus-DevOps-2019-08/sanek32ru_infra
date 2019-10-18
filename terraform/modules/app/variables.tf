@@ -1,5 +1,5 @@
-variable region {
-  description = "Region"
+variable zone {
+  description = "Zone"
 }
 variable public_key_path {
   # Описание переменной
