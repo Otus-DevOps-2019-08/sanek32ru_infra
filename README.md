@@ -154,3 +154,110 @@ packer build -var-file=variables.json.example  ubuntu16.json
 - Заданны переменные для "google_compute_instance" "app" "Zone"
 - Все файлы отформатированы командой `terraform fmt`
 - Создан `terraform.tfvars.example`
+
+## HomeWork 7: terraform-2
+
+- создана ветка terraform-2, работаем в ней, скопировав все материалы из прошлой работы
+- добавлен в main.tf ресурс "firewall-ssh"
+- импортировано правило файервола в структуру Terraform, используя команду terraform import
+```
+ terraform import google_compute_firewall.firewall_ssh default-allow-ssh
+ terraform apply
+```
+- прописан IP адрес, как внешний ресурс, добавлено в main.tf
+``` 
+ resource "google_compute_address" "app_ip" {
+ name = "reddit-app-ip" }
+```
+- добавлена ссылка на атрибуты ресурса IP внутри конфигурации ресурса VM
+```
+ network_interface {
+  network = "default"
+  access_config = {
+    nat_ip = google_compute_address.app_ip.address }
+```
+##### используем структуризацию ресурсов #####
+- проведена структуризация ресурсов - вынес БД MongoDB на отдельную ВМ, и Ruby на другую ВМ
+- для этого созданы packer - шаблоны app.json и db.json
+- app.json создает образ с именем reddit-rubyapp, db.json => reddit.db
+- созданы два конфиг файла - app.tf db.tf, в них описаны параметры для настройки двух ВМ
+- правило файервола ssh вынесено в отдельный файл vpc.tf
+```
+resource "google_compute_firewall" "firewall_ssh" {
+  name    = "default-allow-ssh"
+  network = "default"
+  allow {
+    protocol = "tcp"
+    ports    = ["22"]
+  }
+  source_ranges = [0.0.0.0/0]
+}
+```
+- в файле main.tf остались лишь записи о версии провайдера google
+
+##### использование модулей #####
+
+- созданы директории modules/db и modules/app в рабочей папке terraform
+- в них создан конфиг. файлы  для каждого модуля: variables.tf , outputs.tf , main.tf
+- определены переменные в variables.tf
+- удалены из основной директории app.tf db.tf
+- в ./main.tf прописаны секции вызова модулей
+```
+module "app" {
+  source          = "../modules/app"
+  public_key_path = var.public_key_path
+  zone            = var.zone
+  app_disk_image  = var.app_disk_image
+}
+
+module "db" {
+  source          = "../modules/db"
+  public_key_path = var.public_key_path
+  zone            = var.zone
+  db_disk_image   = var.db_disk_image
+}
+```
+- загружены модули командой terraform get
+- для устранения ошибки, переопределена выходная переменная в ./outputs.tf
+```
+output "app_external_ip" {
+  value = module.app.app_external_ip
+}
+```
+- создан модуль VPC , расположен ./modules/vpc, прописал конфиг. файл
+- прописан его вызов в ./main.tf , удалил ./vpc.tf в основной директории
+- проверена работоспособность
+```
+terraform get
+terraform plan
+terraform apply
+```
+##### параметризация модулей с использованием input переменных  #####
+- в файле конфигурации фаервола ssh : ./modules/vpc/main.tf укажем диапазон адресов в виде переменной
+````
+ source_ranges = var.source.ranges
+````
+- определена переменная в variables.tf данного модуля, указано значение по умолчанию
+- определено значение переменной в вызове модуля из основного файла main.tf
+- указан IP адрес своей локальной машины - доступ по SSH к ВМ есть
+- указан иной адрес- в результате ВМ недоступна
+- возврат значения 0.0.0.0/0
+
+##### переиспользование модулей  #####
+- создана инфраструктура для двух окружений (stage и prod)
+- в двух директориях ./stage и ./prod находятся конфиг. файлы из основной папки
+- для обоих директорий в main.tf исправлены ссылки на модули app , db, vpc
+- различия окружений - для stage  прописано правило доступа по SSH для всех адресов, для prod - только один
+- из основной директории за ненадобностью удалены все .tf файлы
+
+##### использование стороннего модуля storage-bucket #####
+- прописан вызов модуля в отдельном файле storage-bucket.tf
+- в нем прописана output переменная 
+````
+output storage-bucket_url {
+  value = module.storage-bucket.url
+}
+````
+- изменено значения проекта и региона в variables.tf и terraform.tfvars
+
+Результат - при применении изменений создается бакет с указанным именем (storage-bucket-i253422)
